@@ -26,7 +26,7 @@ def put_data(bucket_name):
             "id": initial_index + index,
             "name": fake.name(),
             "address": fake.address(),
-            "age": fake.age(),
+            "age": random.randint(18, 68),
             "job": fake.job(),
             "salary": fake.pyint(10000, 10000000)
         }
@@ -38,3 +38,6 @@ def put_data(bucket_name):
         Key = f"sample-generated-data/{str(uuid.uuid4())}/{datetime.timestamp()}",
         Body = json.dumps(sample_data)
     )
+
+def handler(event, context):
+    put_data(ssm.get_parameter(Name="/streaming-project-service/bucket-name")['Parameter']['Value'])

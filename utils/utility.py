@@ -9,6 +9,7 @@ from aws_cdk import aws_events_targets as targets
 from aws_cdk import aws_sqs as sqs
 
 import os
+import subprocess
 import shutil
 import boto3 
 
@@ -29,7 +30,18 @@ def create_role(stack):
     role.add_managed_policy(iam.ManagedPolicy.from_aws_managed_policy_name("AdministratorAccess"))
     return role 
 
-def create_lambda_function(stack, name, working_directory, file_name = "lambda_module", handler = "handler", runtime = "python3.10", timeout = 900, schedule = None, s3_notification = None):
+def create_lambda_layer(stack, name, working_directory):
+    subprocess.call(f"python -m pip install -r {os.path.join('lambda_layers', working_directory, 'requirements.txt')} -t {os.path.join('lambda_layers', working_directory, 'build')}")
+    
+    layer_version = lambda_.LayerVersion(
+        stack, name,
+        code = lambda_.Code.from_asset(os.path.join('lambda_layers', working_directory, 'build'))
+    )
+    
+    return layer_version
+
+    
+def create_lambda_function(stack, name, working_directory, file_name = "lambda_module", handler = "handler", runtime = "python3.10", timeout = 900, schedule = None, s3_notification = None, layer_versions = None):
 
     lambda_function = lambda_.Function(
         stack,
@@ -41,6 +53,9 @@ def create_lambda_function(stack, name, working_directory, file_name = "lambda_m
         function_name = name,
         role=stack.role,
     )
+
+    if layer_versions:
+        lambda_function.add_layers(*layer_versions)
 
     principal = iam.ArnPrincipal(stack.role.role_arn)
 
