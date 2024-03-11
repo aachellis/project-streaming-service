@@ -35,7 +35,7 @@ def put_data(bucket_name):
 
     s3.put_object(
         Bucket = bucket_name,
-        Key = f"sample-generated-data/{str(uuid.uuid4())}/{datetime.timestamp()}",
+        Key = f"sample-generated-data/{str(uuid.uuid4())}-{int(datetime.now().timestamp())}/sample-data.json",
         Body = json.dumps(sample_data)
     )
 
