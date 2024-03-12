@@ -112,3 +112,33 @@ def create_kiesis_stream(stack, name):
 
     stream.grant_read_write(stack.role)
     return stream
+
+def create_s3_notification(stack, name, bucket_name = None, prefix = None):
+    has_filter = False
+    filters = {}
+    bucket = s3.Bucket.from_bucket_attributes(stack, "ImportedBucket",
+        bucket_arn=f"arn:aws:s3:::{bucket_name}"
+    )
+
+    if prefix:
+        has_filter = True 
+        filters["prefix"] = prefix
+
+    queue = sqs.Queue(
+        stack, f"{name}-queue",
+        visibility_timeout = cdk.Duration.seconds(900)
+    )
+
+    if not has_filter:
+        bucket.add_event_notification(
+            s3.EventType.OBJECT_CREATED, 
+            s3n.SqsDestination(queue)
+        )
+    else:
+        bucket.add_event_notification(
+            s3.EventType.OBJECT_CREATED, 
+            s3n.SqsDestination(queue), 
+            s3.NotificationKeyFilter(**filters)
+        )
+
+    return queue
