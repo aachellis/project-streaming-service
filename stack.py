@@ -15,8 +15,8 @@ class StreaingProject(Stack):
         super().__init__(scope, id, **kwargs)
 
         self.role = create_role(self)
-        faker_layer = create_lambda_layer(self, "faker-layer", "faker-layer")
-        self.put_data_lambda = create_lambda_function(self, "put-data", "put-data", schedule = "rate(5 minutes)", layer_versions = [faker_layer])
+        self.faker_layer = create_lambda_layer(self, "faker-layer", "faker-layer")
+        self.put_data_lambda = create_lambda_function(self, "put-data", "put-data", schedule = "rate(5 minutes)", layer_versions = [self.faker_layer])
         self.kineis_stream = create_kiesis_stream(self, "my-stream")
         self.data_streaming_queue = create_s3_notification(self, "stream-engine", bucket_name=bucket_name, prefix="sample-generated-data/")
         self.put_data_kinesis = create_lambda_function(self, "put-data-kinesis", "put-data-kinesis")

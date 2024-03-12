@@ -18,8 +18,7 @@ def handler(event, context):
     for item in json.loads(file_object):
         kinesis.put_record(
             StreamName='my-stream',
-            Data=json.dumps(item),
+            Data=','.join([item["id"], item["name"], item["address"], item["age"], item["job"], item["salary"]]),
             PartitionKey='id',
         )
 
-    
