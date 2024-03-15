@@ -15,6 +15,7 @@ def get_initial_index():
         return int(index_num)
     except botocore.exceptions.ClientError as error:
         if error.response["Error"]["Code"] == "ParameterNotFound":
+            ssm.put_parameter(Name = "/streaming-temp/index-count", Value = "0", Type = "String")
             return 0
 
 def put_data(bucket_name):
@@ -38,6 +39,7 @@ def put_data(bucket_name):
         Key = f"sample-generated-data/{str(uuid.uuid4())}-{int(datetime.now().timestamp())}/sample-data.json",
         Body = json.dumps(sample_data)
     )
+    ssm.put_parameter(Name = "/streaming-temp/index-count", Value = str(initial_index + 10000), Type = "String", Overwrite = True)
 
 def handler(event, context):
     put_data(ssm.get_parameter(Name="/streaming-project-service/bucket-name")['Parameter']['Value'])
