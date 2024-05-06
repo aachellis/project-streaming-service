@@ -3,6 +3,7 @@ get_cdk.ps1
 temp_init_dict
 *.zip
 .ipynb_checkpoints
+.vscode
 
 .venv
 *.pyc

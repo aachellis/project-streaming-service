@@ -23,7 +23,9 @@ def create_role(stack):
             iam.ServicePrincipal("lambda.amazonaws.com"), 
             iam.ServicePrincipal("states.amazonaws.com"),
             iam.ServicePrincipal("events.amazonaws.com"),
-            iam.ServicePrincipal("dynamodb.amazonaws.com")
+            iam.ServicePrincipal("dynamodb.amazonaws.com"),
+            iam.ServicePrincipal("firehose.amazonaws.com"),
+            iam.ServicePrincipal("s3.amazonaws.com"),
         ),
     )
 
@@ -40,7 +42,6 @@ def create_lambda_layer(stack, name, working_directory):
     
     return layer_version
 
-    
 def create_lambda_function(stack, name, working_directory, file_name = "lambda_module", handler = "handler", runtime = "python3.10", timeout = 900, schedule = None, s3_notification = None, layer_versions = None):
 
     lambda_function = lambda_.Function(
